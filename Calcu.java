@@ -1,7 +1,7 @@
 interface calcu
 {
 public int sum(int a,int b);
-public int diff(int a.int b);
+public int diff(int a,int b);
 }
 class calcuImpl implements calcu
 {
