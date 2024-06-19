@@ -1,0 +1,82 @@
+package org.jsp.UserBootApp.Controller;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.jsp.UserBootApp.Dto.User;
+import org.jsp.UserBootApp.Repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class UserController {
+	@Autowired
+	private UserRepository repository;
+
+	@PostMapping("/users")
+	public User saveUser(@RequestBody User user) {
+		return repository.save(user);
+	}
+
+	@PutMapping("/users")
+	public User updateUser(@RequestBody User user) {
+		Optional<User> recUser=repository.findById(user.getId());
+		if(recUser.isPresent())
+		{
+			User dbUser=recUser.get();
+			dbUser.setEmail(user.getEmail());
+			dbUser.setName(user.getName());
+			dbUser.setPhone(user.getPhone());
+			dbUser.setPassword(user.getPassword());
+			repository.save(dbUser);
+			return dbUser;
+		}
+		return null;
+	}
+
+	@GetMapping(value = "/users/{id}")
+	public User findById(@PathVariable(name = "id")int id)
+	{
+		Optional<User> dbUser=repository.findById(id);
+		if(dbUser.isPresent())
+		{
+			return dbUser.get(); 
+		}
+		return null;
+	}
+
+	@DeleteMapping("/users/{id}")
+	public boolean deleteById(@PathVariable(name = "id") int id) {
+		Optional<User> dbUser=repository.findById(id);
+		if(dbUser.isPresent())
+		{
+			repository.delete(dbUser.get());
+			return true;
+		}
+		return false;
+	}
+
+	@GetMapping("/users")
+	public List<User> findall() {
+		return repository.findAll();
+	}
+	
+	@PostMapping("/users/verify-by-phone")
+	public User verifyByPhone(@RequestParam long phone,@RequestParam String password)
+	{
+		Optional<User> dbUser=repository.verify(phone, password);
+		if(dbUser.isPresent())
+		{
+			return dbUser.get();
+		}
+		return null;
+	}
+
+}
